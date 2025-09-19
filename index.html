@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KinoProLab – Treylerlar</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #111; color: #fff; }
+    header { text-align: center; padding: 1rem; background: #222; font-size: 1.5rem; font-weight: bold; }
+    .search-box { text-align: center; margin: 1rem; }
+    input { padding: 0.5rem; width: 80%; max-width: 400px; border-radius: 8px; border: none; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; padding: 1rem; }
+    .card { background: #222; border-radius: 12px; padding: 0.5rem; box-shadow: 0 0 10px #000; cursor: pointer; transition: 0.3s; }
+    .card:hover { transform: scale(1.03); }
+    .video-container iframe { width: 100%; height: 450px;  border: none;  border-radius: 12px;}
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
+    .modal video, .modal iframe {   width: 100%; height: 70vh; border: none;border-radius: 0; }
+    .modal-content { text-align: center; padding: 1rem; }
+    .back-btn { background: #ff4444; padding: 0.5rem 1rem; border: none; border-radius: 8px; color: #fff; cursor: pointer; margin-top: 1rem; }
+    .telegram-link { display: inline-block; margin-top: 1rem; background: #0088cc; color: #fff; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: bold; }
+    #admin-panel { display: none; padding: 1rem; background: #111; }
+    .admin-input { display: block; margin: 0.5rem 0; padding: 0.5rem; width: 100%; max-width: 400px; }
+    .save-btn { background: #4CAF50; border: none; padding: 0.5rem 1rem; border-radius: 8px; color: #fff; cursor: pointer; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header>KinoProLab – Treylerlar</header>
+
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Kino nomini qidirish..." onkeyup="searchMovies()">
+  </div>
+
+  <div class="grid" id="trailer-list"></div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content" id="modal-content"></div>
+    <button class="back-btn" onclick="closeModal()">Orqaga</button>
+  </div>
+
+  <div id="admin-panel">
+    <h2>Admin Paneli</h2>
+    <input class="admin-input" type="text" id="title" placeholder="Kino nomi">
+    <input class="admin-input" type="text" id="description" placeholder="Kino haqida ma'lumot">
+    <input class="admin-input" type="text" id="videoUrl" placeholder="Video URL (mp4 yoki Instagram embed)">
+    <button class="save-btn" onclick="addTrailer()">Saqlash</button>
+  </div>
+
+  <script>
+    let password = prompt("Admin paneliga kirish uchun parol kiriting (foydalanuvchilar shunchaki Bekor qilishni bossa saytga o'tadi):");
+    if(password === "12345ramazon678910"){
+      document.getElementById("admin-panel").style.display = "block";
+    }
+const telegramLink = "https://t.me/KinoProLab";
+let trailers = [
+  {
+    title: "Hayvonlar shari",
+    description: "kno kodi 303 | botga kiriting va tomosha qiling",
+    video: "https://www.instagram.com/reel/DOugxTYiMwS/embed"
+  },
+  {
+    title: "Shermurodni izlab",
+    description: "kino kodi 21 | botga kiriting va tomosha qiling",
+    video: "https://www.instagram.com/reel/DOlEymIDI17/embed"
+  },
+  {
+    title: "Yomon yigitlar 2",
+    description: "kino kodi 41| botga kiriting va tomosha qiling",
+    video: "https://www.instagram.com/reel/DOlFXOKjLUH/embed"
+  },
+  {
+    title: "Milion yangi soni",
+    description: "kino kodi 7",
+    video: "https://www.instagram.com/reel/DOldIp8DD-D/embed"
+  } ,
+   {
+    title: "Neja",
+    description: "kino kodi 43 |barcha qismlarini botdan toping",
+    video: "https://www.instagram.com/reel/DOY9EpkDLo7/embed"
+  }
+];
+
+    function renderTrailers(){
+      const list = document.getElementById('trailer-list');
+      list.innerHTML = '';
+      trailers.forEach((trailer, index) => {
+        let div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<h3>${trailer.title}</h3>`;
+        div.onclick = () => openModal(index);
+        list.appendChild(div);
+      });
+    }
+
+    function searchMovies(){
+      const q = document.getElementById('search').value.toLowerCase();
+      const list = document.getElementById('trailer-list');
+      list.innerHTML = '';
+      trailers.filter(t => t.title.toLowerCase().includes(q)).forEach((trailer, index) => {
+        let div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<h3>${trailer.title}</h3>`;
+        div.onclick = () => openModal(index);
+        list.appendChild(div);
+      });
+    }
+
+    function openModal(index){
+      const modal = document.getElementById('modal');
+      const modalContent = document.getElementById('modal-content');
+      modal.style.display = 'flex';
+      modalContent.innerHTML = `
+        <iframe src="${trailers[index].video}" frameborder="0" allowfullscreen></iframe>
+        <h2>${trailers[index].title}</h2>
+        <p>${trailers[index].description}</p>
+        <a class="telegram-link" href="${telegramLink}" target="_blank">Telegramdan Ko‘rish</a>
+      `;
+    }
+
+    function closeModal(){
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function addTrailer(){
+      const t = document.getElementById('title').value;
+      const d = document.getElementById('description').value;
+      const v = document.getElementById('videoUrl').value;
+      trailers.push({ title: t, description: d, video: v });
+      renderTrailers();
+      alert("Yangi treyler qo'shildi!");
+    }
+
+    renderTrailers();
+  </script>
+</body>
+</html>
